@@ -8,14 +8,19 @@ public class Window_Graph : MonoBehaviour
 {
     [SerializeField] private Sprite circleSprite;
     private RectTransform graphContainer;
+    private RectTransform labelTemplateX;
+    private RectTransform labelTemplateY;
 
     private void Awake(){
         graphContainer=transform.Find("graphContainer").GetComponent<RectTransform>();
-        List<int>valueList=new List<int>(){5,98,56,45,30,22,17,15,13,17,25,37,40,36,33};
+        labelTemplateX = graphContainer.Find("labelTemplateX").GetComponent<RectTransform>();
+        labelTemplateY = graphContainer.Find("labelTemplateY").GetComponent<RectTransform>();
+
+        List<int>valueList=new List<int>(){10,45,84,46,75,32,41,96,74,66};
         ShowGraph(valueList);
     }
 
-    private GameObject CreateCircle(Vector2 anchoredPosition){
+    private GameObject CreateCircle(Vector2 anchoredPosition) { 
         GameObject gameObject= new GameObject("circle",typeof(Image));
         gameObject.transform.SetParent(graphContainer,false);
         gameObject.GetComponent<Image>().sprite=circleSprite;
@@ -31,17 +36,23 @@ public class Window_Graph : MonoBehaviour
     private void ShowGraph(List<int> valueList){
         float graphHeigth=graphContainer.sizeDelta.y; 
         float yMaximun=100f;
-        float xSize=50f;
+        float xSize=100f;
 
         GameObject lasCircleGameObject=null;
         for(int i=0;i< valueList.Count;i++){
-            float xPosition=xSize + i*xSize;
+            float xPosition=xSize + i*xSize-65;
             float yPosition=(valueList[i]/yMaximun)*graphHeigth;
             GameObject circleGameObject=CreateCircle(new Vector2(xPosition,yPosition));
             if(lasCircleGameObject!=null){
                 CreateDotConnection(lasCircleGameObject.GetComponent<RectTransform>().anchoredPosition,circleGameObject.GetComponent<RectTransform>().anchoredPosition);
             }
             lasCircleGameObject=circleGameObject;
+
+            RectTransform labelX = Instantiate(labelTemplateX);
+            labelX.SetParent(graphContainer);
+            labelX.gameObject.SetActive(true);
+            labelX.anchoredPosition = new Vector2(xPosition, 20f);
+            labelX.GetComponent<Text>().text = i.ToString();
         }
 
     }
