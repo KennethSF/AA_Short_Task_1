@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using CodeMonkey.Utils;
+
 
 public class Window_Graph : MonoBehaviour
 {
@@ -15,9 +17,36 @@ public class Window_Graph : MonoBehaviour
         graphContainer=transform.Find("graphContainer").GetComponent<RectTransform>();
         labelTemplateX = graphContainer.Find("labelTemplateX").GetComponent<RectTransform>();
         labelTemplateY = graphContainer.Find("labelTemplateY").GetComponent<RectTransform>();
+        var arraySize = 1000;
+        int[] BubbleArray = new int[10];
+        int[] SelectionArray = new int[10];
+        
+        int[] BArray;  
+        int[] SArray;
+        
+        for (int i = 0; i < 10; i++)
+        {
+            BArray = SArray  = ArrayGenerator(arraySize);
 
-        List<int>valueList=new List<int>(){10,45,84,46,75,32,41,96,74,66};
-        ShowGraph(valueList);
+            BubbleArray[i] = BubbleSort(BArray);
+            SelectionArray[i] = SelectionSort(SArray);
+            
+            arraySize += 1000;
+        }
+        NormalizeArray(ref BubbleArray);
+        NormalizeArray(ref SelectionArray);
+
+        
+        ShowGraph(BubbleArray);
+        ShowGraph(SelectionArray);
+    }
+
+    private void NormalizeArray(ref int[] array){
+        for(int i=0;i<10;i++){
+            array[i]=( array[i]*100 ) /1000;
+            if(array[i]>100)
+                array[i]=100;
+        }
     }
 
     private GameObject CreateCircle(Vector2 anchoredPosition) { 
@@ -33,13 +62,13 @@ public class Window_Graph : MonoBehaviour
         return gameObject;
     }
 
-    private void ShowGraph(List<int> valueList){
+    private void ShowGraph(int[] valueList){
         float graphHeigth=graphContainer.sizeDelta.y; 
         float yMaximun=100f;
         float xSize=100f;
 
         GameObject lasCircleGameObject=null;
-        for(int i=0;i< valueList.Count;i++){
+        for(int i=0;i< valueList.Length;i++){
             float xPosition=xSize + i*xSize-65;
             float yPosition=(valueList[i]/yMaximun)*graphHeigth;
             GameObject circleGameObject=CreateCircle(new Vector2(xPosition,yPosition));
@@ -51,7 +80,7 @@ public class Window_Graph : MonoBehaviour
             RectTransform labelX = Instantiate(labelTemplateX);
             labelX.SetParent(graphContainer);
             labelX.gameObject.SetActive(true);
-            labelX.anchoredPosition = new Vector2(xPosition, 20f);
+            labelX.anchoredPosition = new Vector2(xPosition, -20f);
             labelX.GetComponent<Text>().text = i.ToString();
         }
 
@@ -71,4 +100,61 @@ public class Window_Graph : MonoBehaviour
         rectTransform.localEulerAngles = new Vector3(0,0,UtilsClass.GetAngleFromVectorFloat(dir));
     }
 
+    private static int[] ArrayGenerator(int arraySize) 
+    {
+        var minNum = 0;
+        var maxNum = 9999;
+        int[] newArray = new int[arraySize];
+        
+        //float number = System.Random.Range (0f, 3f);
+        System.Random randNum = new System.Random();
+        for (var i = 0; i < newArray.Length; i++)
+        {
+            newArray[i] = randNum.Next(minNum, maxNum);
+        }
+
+        return newArray;
+    }
+        
+        
+    private static int SelectionSort(int[] arr)
+    {
+        var n = arr.Length;
+        
+        int temp, smallest;
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        for (var i = 0; i < n - 1; i++) {
+            smallest = i;
+            for (int j = i + 1; j < n; j++) {
+                if (arr[j] < arr[smallest]) {
+                    smallest = j;
+                }
+            }
+            temp = arr[smallest];
+            arr[smallest] = arr[i];
+            arr[i] = temp;
+        }
+        watch.Stop();
+        var elapsedMs = watch.ElapsedMilliseconds;
+        return Convert.ToInt32(elapsedMs);
+    }
+
+    private static int BubbleSort(int[] arr)
+    {
+        int temp;
+        //Sorting method
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        for (int j = 0; j <= arr.Length - 2; j++) {
+            for (int i = 0; i <= arr.Length - 2; i++) {
+                if (arr[i] > arr[i + 1]) {
+                    temp = arr[i + 1];
+                    arr[i + 1] = arr[i];
+                    arr[i] = temp;
+                }
+            }
+        }
+        watch.Stop();
+        var elapsedMs = watch.ElapsedMilliseconds;
+        return Convert.ToInt32(elapsedMs);
+    }
 }
