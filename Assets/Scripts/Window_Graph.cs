@@ -13,7 +13,7 @@ public class Window_Graph : MonoBehaviour
     private RectTransform labelTemplateX;
     private RectTransform labelTemplateY;
 
-    private void Awake(){
+    private void Awake(){ //Awake method initialize all the necesary components at the beginning of the game
         graphContainer=transform.Find("graphContainer").GetComponent<RectTransform>();
         labelTemplateX = graphContainer.Find("labelTemplateX").GetComponent<RectTransform>();
         labelTemplateY = graphContainer.Find("labelTemplateY").GetComponent<RectTransform>();
@@ -23,24 +23,24 @@ public class Window_Graph : MonoBehaviour
         
         int[] BArray;  
         int[] SArray;
-        
+
         for (int i = 0; i < 10; i++)
         {
             BArray = SArray  = ArrayGenerator(arraySize);
 
             BubbleArray[i] = BubbleSort(BArray);
-            SelectionArray[i] = SelectionSort(SArray);
-            
+            SelectionArray[i] = SelectionSort(SArray);            
             arraySize += 1000;
         }
         NormalizeArray(ref BubbleArray);
         NormalizeArray(ref SelectionArray);
 
         
-        ShowGraph(BubbleArray);
-        ShowGraph(SelectionArray);
+        ShowGraph(BubbleArray,0,255,0);
+        ShowGraph(SelectionArray,255,0,0);
     }
 
+    //Convert the miliseconds into a number between 0 and 100 to use it as parameter to show it in the Graph
     private void NormalizeArray(ref int[] array){
         for(int i=0;i<10;i++){
             array[i]=( array[i]*100 ) /1000;
@@ -62,7 +62,7 @@ public class Window_Graph : MonoBehaviour
         return gameObject;
     }
 
-    private void ShowGraph(int[] valueList){
+    private void ShowGraph(int[] valueList, int r, int g ,int b){
         float graphHeigth=graphContainer.sizeDelta.y; 
         float yMaximun=100f;
         float xSize=100f;
@@ -73,23 +73,19 @@ public class Window_Graph : MonoBehaviour
             float yPosition=(valueList[i]/yMaximun)*graphHeigth;
             GameObject circleGameObject=CreateCircle(new Vector2(xPosition,yPosition));
             if(lasCircleGameObject!=null){
-                CreateDotConnection(lasCircleGameObject.GetComponent<RectTransform>().anchoredPosition,circleGameObject.GetComponent<RectTransform>().anchoredPosition);
+                CreateDotConnection(lasCircleGameObject.GetComponent<RectTransform>().anchoredPosition,circleGameObject.GetComponent<RectTransform>().anchoredPosition,r,g,b);
             }
             lasCircleGameObject=circleGameObject;
 
-            RectTransform labelX = Instantiate(labelTemplateX);
-            labelX.SetParent(graphContainer);
-            labelX.gameObject.SetActive(true);
-            labelX.anchoredPosition = new Vector2(xPosition, -20f);
-            labelX.GetComponent<Text>().text = i.ToString();
         }
 
     }
 
-    private void CreateDotConnection(Vector2 dotPositionA, Vector2 dotPositionB){
+    private void CreateDotConnection(Vector2 dotPositionA, Vector2 dotPositionB,int r, int g ,int b){
+        Debug.Log(r);
         GameObject gameObject = new GameObject("dotConnection",typeof(Image));
         gameObject.transform.SetParent(graphContainer,false);
-        gameObject.GetComponent<Image>().color= new Color(1,1,1,.5f);
+        gameObject.GetComponent<Image>().color= new Color(r,g,b,.5f);
         RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
         Vector2 dir= (dotPositionB-dotPositionA).normalized;
         float distance =Vector2.Distance(dotPositionA,dotPositionB);
@@ -115,7 +111,6 @@ public class Window_Graph : MonoBehaviour
 
         return newArray;
     }
-        
         
     private static int SelectionSort(int[] arr)
     {
